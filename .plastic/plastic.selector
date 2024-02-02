@@ -1,0 +1,4 @@
+repository "The Game@NostalgicDani@cloud"
+  path "/"
+    br "/main"
+    co "/main"
