@@ -3,40 +3,56 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using TMPro;
+using Unity.VisualScripting;
 
 
 public class GameManagerScript : MonoBehaviour
 {
+    [SerializeField] private GameObject deathMenu;
+    [SerializeField] private GameObject pauseMenu;
+
+
     [SerializeField] private GameObject deathObj;
     private TextMeshProUGUI deathText;
-    [SerializeField] private GameObject restartButton;
-    [SerializeField] private GameObject quitButton;
     [SerializeField] private GameObject scoreObj;
     private TextMeshProUGUI scoreText;
 
+    [SerializeField] private PlayerStatsScript playerStatsScript;
     public Color deathColor;
+    public static bool isPaused = false;
 
+    private void Start()
+    {
+        Time.timeScale = 1f; //start instead of restart bc it wont work idk
+    }
+    private void Update()
+    {
+        if(Input.GetKeyDown(KeyCode.Escape))
+        {
+            if (playerStatsScript.playerHealth > 0) {
+                if (isPaused)
+                {
+                    Resume();
+                }
+                else
+                {
+                    Pause();
+                }
+            }
+        }
+    }
     public void GameOver()
     {
+        Time.timeScale = 0f;
         scoreText = scoreObj.GetComponent<TextMeshProUGUI>();
         deathText = deathObj.GetComponent<TextMeshProUGUI>();
-        deathObj.SetActive(true);
-        restartButton.SetActive(true);
-        quitButton.SetActive(true);
-        scoreObj.SetActive(true);
-
-        for (float t = 0; t < 1.0f; t += Time.deltaTime / 5f)
-        {
-            deathText.color = Color.Lerp(deathText.color, Color.red, 1f);
-        }
+        deathMenu.SetActive(true);
     }
 
     public void RestartGame()
     {
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
-        deathObj.SetActive(false);
-        restartButton.SetActive(false);
-        scoreObj.SetActive(false);
+        deathMenu.SetActive(false);
     }
 
     public void Score(int score)
@@ -45,7 +61,24 @@ public class GameManagerScript : MonoBehaviour
     }
 
     public void MainMenu()
-    {
+    {   
+        if (isPaused)
+        {
+            Time.timeScale = 1f;
+        }
         SceneManager.LoadScene(0); //main menu
+    }
+
+    public void Resume()
+    {
+        pauseMenu.SetActive(false);
+        Time.timeScale = 1f;
+        isPaused = false;
+    }
+    private void Pause()
+    {
+        pauseMenu.SetActive(true);
+        Time.timeScale = 0f;
+        isPaused = true;
     }
 }
